@@ -1,21 +1,11 @@
-!IF [where /Q Makefile.auto.win]
-# The file doesn't exist, so don't include it.
-!ELSE
-!INCLUDE Makefile.auto.win
-!ENDIF
-
 BLAKE2_PATH = c_src
 
 NMAKE = nmake /$(MAKEFLAGS)
-MIX = mix
 CFLAGS = /O2 /EHsc /I"$(BLAKE2_PATH)"
 
 NIF_SRC = c_src/blake2b_nif.c
 
-all: blake2
-
-blake2:
-	$(MIX) compile
+all: priv\blake2_nif.dll
 
 Makefile.auto.win:
 	echo # Auto-generated as part of Makefile.win, do not modify. > $@

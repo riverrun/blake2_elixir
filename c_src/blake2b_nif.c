@@ -369,33 +369,28 @@ int blake2b( uint8_t *out, const void *in, const void *key, const uint8_t outlen
 	return 0;
 }
 
-static ERL_NIF_TERM blake2b_hash(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
+ERL_NIF_TERM blake2b_hash(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
-	blake2b_state S[1];
-	char in[1024], key[1024];
-	uint8_t outlen, keylen;
-	uint64_t inlen;
-	ERL_NIF_TERM out[21];
+	uint8_t out[64] = {0};
+	//char input[256] = {0};
+	char input[256];
+	char key[64] = {0};
+	unsigned int outlen;
+	int i;
+	ERL_NIF_TERM hash[64];
 
-	outlen = 20;
-	inlen = 0;
-	keylen = 0;
-	out[0] = '\0';
-
-	if (argc != 2 || !enif_get_string(env, argv[0], in, sizeof(in), ERL_NIF_LATIN1) ||
-			!enif_get_string(env, argv[1], key, sizeof(key), ERL_NIF_LATIN1))
+	if (!enif_get_string(env, argv[0], input, sizeof(input), ERL_NIF_LATIN1) ||
+			!enif_get_uint(env, argv[1], &outlen) ||
+			!enif_get_string(env, argv[2], key, sizeof(key), ERL_NIF_LATIN1))
 		return enif_make_badarg(env);
 
-	if (keylen > 0) {
-		if (blake2b_init_key(S, outlen, (const void *) key, keylen) < 0) return -1;
+	outlen = 64;
+	blake2b(out, input, key, outlen, strlen(input), 0);
+	//blake2b(out, (uint8_t *) input, (uint8_t *) key, outlen, strlen(input), 0);
+	for (i = 0; i < outlen; i++) {
+		hash[i] = enif_make_uint(env, out[i]);
 	}
-	else {
-		if (blake2b_init(S, outlen) < 0) return -1;
-	}
-
-	blake2b_update(S, (const uint8_t *) in, inlen);
-	blake2b_final(S, (uint8_t *) out, outlen);
-	return enif_make_list_from_array(env, out, outlen);
+	return enif_make_list_from_array(env, hash, outlen);
 }
 
 static int upgrade(ErlNifEnv* env, void** priv_data, void** old_priv_data, ERL_NIF_TERM load_info)
@@ -405,7 +400,7 @@ static int upgrade(ErlNifEnv* env, void** priv_data, void** old_priv_data, ERL_N
 
 static ErlNifFunc blake2b_nif_funcs[] =
 {
-	{"blake2b_hash", 2, blake2b_hash}
+	{"blake2b_hash", 3, blake2b_hash}
 };
 
 ERL_NIF_INIT(Elixir.Blake2.Blake2b, blake2b_nif_funcs, NULL, NULL, upgrade, NULL)

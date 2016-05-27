@@ -8,14 +8,12 @@ defmodule Blake2.Blake2b do
     :erlang.load_nif(path, 0)
   end
 
-  def blake2b_hash(input, key)
-  def blake2b_hash(_, _), do: exit(:nif_library_not_loaded)
+  def blake2b_hash(input, outlen, key)
+  def blake2b_hash(_, _, _), do: exit(:nif_library_not_loaded)
 
-  def blake2b_hash(out, input, key, outlen, inlen, keylen)
-  def blake2b_hash(_, _, _, _, _, _), do: exit(:nif_library_not_loaded)
-
-  def blake2b(input \\ '') do
-    blake2b_hash(input, '') |> Base.encode16
+  def blake2b(input \\ '', outlen \\ 32, key \\ '') do
+    blake2b_hash(input, outlen, key)
+    #blake2b_hash(input, outlen, key) |> Base.encode16
   end
 
 end

@@ -19,12 +19,10 @@ endif
 
 NIF_SRC = c_src/blake2b_nif.c
 
-all: blake2
+all: priv/blake2b_nif.so
 
 priv/blake2b_nif.so: $(NIF_SRC)
+	mkdir -p priv
 	$(CC) $(CFLAGS) -shared $(LDFLAGS) -o $@ $(NIF_SRC)
 
-blake2:
-	$(CC) $(CFLAGS) -shared $(LDFLAGS) -o priv/blake2b_nif.so $(NIF_SRC)
-
-.PHONY: all blake2
+.PHONY: all
