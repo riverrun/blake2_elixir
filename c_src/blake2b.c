@@ -17,7 +17,6 @@ https://blake2.net.
 #include <string.h>
 #include <stdio.h>
 
-#include "erl_nif.h"
 #include "blake2.h"
 #include "blake2-impl.h"
 
@@ -166,6 +165,8 @@ int blake2b_init_param( blake2b_state *S, const blake2b_param *P )
 	return 0;
 }
 
+
+
 int blake2b_init( blake2b_state *S, const uint8_t outlen )
 {
 	blake2b_param P[1];
@@ -185,6 +186,7 @@ int blake2b_init( blake2b_state *S, const uint8_t outlen )
 	memset( P->personal, 0, sizeof( P->personal ) );
 	return blake2b_init_param( S, P );
 }
+
 
 int blake2b_init_key( blake2b_state *S, const uint8_t outlen, const void *key, const uint8_t keylen )
 {
@@ -213,7 +215,7 @@ int blake2b_init_key( blake2b_state *S, const uint8_t outlen, const void *key, c
 		memset( block, 0, BLAKE2B_BLOCKBYTES );
 		memcpy( block, key, keylen );
 		blake2b_update( S, block, BLAKE2B_BLOCKBYTES );
-		secure_zero_memory( block, BLAKE2B_BLOCKBYTES );
+		secure_zero_memory( block, BLAKE2B_BLOCKBYTES ); /* Burn the key from stack */
 	}
 	return 0;
 }
@@ -281,6 +283,7 @@ static int blake2b_compress( blake2b_state *S, const uint8_t block[BLAKE2B_BLOCK
 	return 0;
 }
 
+/* inlen now in bytes */
 int blake2b_update( blake2b_state *S, const uint8_t *in, uint64_t inlen )
 {
 	while( inlen > 0 )
@@ -290,19 +293,19 @@ int blake2b_update( blake2b_state *S, const uint8_t *in, uint64_t inlen )
 
 		if( inlen > fill )
 		{
-			memcpy( S->buf + left, in, fill );
+			memcpy( S->buf + left, in, fill ); // Fill buffer
 			S->buflen += fill;
 			blake2b_increment_counter( S, BLAKE2B_BLOCKBYTES );
-			blake2b_compress( S, S->buf );
-			memcpy( S->buf, S->buf + BLAKE2B_BLOCKBYTES, BLAKE2B_BLOCKBYTES );
+			blake2b_compress( S, S->buf ); // Compress
+			memcpy( S->buf, S->buf + BLAKE2B_BLOCKBYTES, BLAKE2B_BLOCKBYTES ); // Shift buffer left
 			S->buflen -= BLAKE2B_BLOCKBYTES;
 			in += fill;
 			inlen -= fill;
 		}
-		else
+		else // inlen <= fill
 		{
 			memcpy( S->buf + left, in, inlen );
-			S->buflen += inlen;
+			S->buflen += inlen; // Be lazy, do not compress
 			in += inlen;
 			inlen -= inlen;
 		}
@@ -311,6 +314,7 @@ int blake2b_update( blake2b_state *S, const uint8_t *in, uint64_t inlen )
 	return 0;
 }
 
+/* Is this correct? */
 int blake2b_final( blake2b_state *S, uint8_t *out, uint8_t outlen )
 {
 	uint8_t buffer[BLAKE2B_OUTBYTES] = {0};
@@ -331,10 +335,10 @@ int blake2b_final( blake2b_state *S, uint8_t *out, uint8_t outlen )
 
 	blake2b_increment_counter( S, S->buflen );
 	blake2b_set_lastblock( S );
-	memset( S->buf + S->buflen, 0, 2 * BLAKE2B_BLOCKBYTES - S->buflen );
+	memset( S->buf + S->buflen, 0, 2 * BLAKE2B_BLOCKBYTES - S->buflen ); /* Padding */
 	blake2b_compress( S, S->buf );
 
-	for( int i = 0; i < 8; ++i )
+	for( int i = 0; i < 8; ++i ) /* Output full hash to temp buffer */
 		store64( buffer + sizeof( S->h[i] ) * i, S->h[i] );
 
 	memcpy( out, buffer, outlen );
@@ -357,10 +361,12 @@ int blake2b( uint8_t *out, const void *in, const void *key, const uint8_t outlen
 
 	if( keylen > BLAKE2B_KEYBYTES ) return -1;
 
-	if( keylen > 0 ) {
+	if( keylen > 0 )
+	{
 		if( blake2b_init_key( S, outlen, key, keylen ) < 0 ) return -1;
 	}
-	else {
+	else
+	{
 		if( blake2b_init( S, outlen ) < 0 ) return -1;
 	}
 
@@ -368,37 +374,3 @@ int blake2b( uint8_t *out, const void *in, const void *key, const uint8_t outlen
 	blake2b_final( S, out, outlen );
 	return 0;
 }
-
-ERL_NIF_TERM blake2b_hash(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
-{
-	uint8_t out[64] = {0};
-	char input[256];
-	char key[64] = {0};
-	unsigned int inlen, keylen;
-	int i;
-	ERL_NIF_TERM hash[64];
-
-	if (!enif_get_string(env, argv[0], input, sizeof(input), ERL_NIF_LATIN1) ||
-			!enif_get_string(env, argv[1], key, sizeof(key), ERL_NIF_LATIN1) ||
-			!enif_get_uint(env, argv[2], &inlen) ||
-			!enif_get_uint(env, argv[3], &keylen))
-		return enif_make_badarg(env);
-
-	blake2b(out, input, key, BLAKE2B_OUTBYTES, (uint64_t) inlen, keylen);
-	for (i = 0; i < BLAKE2B_OUTBYTES; i++) {
-		hash[i] = enif_make_uint(env, out[i]);
-	}
-	return enif_make_list_from_array(env, hash, BLAKE2B_OUTBYTES);
-}
-
-static int upgrade(ErlNifEnv* env, void** priv_data, void** old_priv_data, ERL_NIF_TERM load_info)
-{
-	return 0;
-}
-
-static ErlNifFunc blake2b_nif_funcs[] =
-{
-	{"blake2b_hash", 4, blake2b_hash}
-};
-
-ERL_NIF_INIT(Elixir.Blake2.Blake2b, blake2b_nif_funcs, NULL, NULL, upgrade, NULL)

@@ -1,9 +1,15 @@
+!IF [where /Q Makefile.auto.win]
+# The file doesn't exist, so don't include it.
+!ELSE
+!INCLUDE Makefile.auto.win
+!ENDIF
+
 BLAKE2_PATH = c_src
 
 NMAKE = nmake /$(MAKEFLAGS)
 CFLAGS = /O2 /EHsc /I"$(BLAKE2_PATH)"
 
-NIF_SRC = c_src/blake2b_nif.c
+NIF_SRC = c_src/blake2b.c c_src/blake2_nif.c
 
 all: priv\blake2_nif.dll
 
@@ -13,6 +19,7 @@ Makefile.auto.win:
 
 !IFDEF ERTS_INCLUDE_PATH
 priv\blake2_nif.dll:
+	mkdir priv
 	$(CC) $(CFLAGS) /I"$(ERTS_INCLUDE_PATH)" /LD /MD /Fe$@ $(NIF_SRC)
 !ELSE
 priv\blake2_nif.dll: Makefile.auto.win
