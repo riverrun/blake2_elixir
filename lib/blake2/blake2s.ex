@@ -1,18 +1,18 @@
-defmodule Blake2.Blake2b do
+defmodule Blake2.Blake2s do
 
   @compile {:autoload, false}
   @on_load {:init, 0}
 
   def init do
-    path = :filename.join(:code.priv_dir(:blake2), 'blake2b_nif')
+    path = :filename.join(:code.priv_dir(:blake2), 'blake2s_nif')
     :erlang.load_nif(path, 0)
   end
 
-  def blake2b_hash(input, key, outlen)
-  def blake2b_hash(_, _, _), do: exit(:nif_library_not_loaded)
+  def blake2s_hash(input, key, outlen)
+  def blake2s_hash(_, _, _), do: exit(:nif_library_not_loaded)
 
-  def hash(input, key, outlen \\ 64) do
-    blake2b_hash(input, key, outlen)
+  def hash(input, key, outlen \\ 32) do
+    blake2s_hash(input, key, outlen)
     |> :binary.list_to_bin
     |> Base.encode16(case: :lower)
   end

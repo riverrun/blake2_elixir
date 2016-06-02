@@ -17,12 +17,15 @@ else
     endif
 endif
 
-NIF_SRC = c_src/blake2b.c c_src/blake2_nif.c
+all: create_priv priv/blake2b_nif.so priv/blake2s_nif.so
 
-all: priv/blake2_nif.so
-
-priv/blake2_nif.so: $(NIF_SRC)
+create_priv:
 	mkdir -p priv
-	$(CC) $(CFLAGS) -shared $(LDFLAGS) -o $@ $(NIF_SRC)
 
-.PHONY: all
+priv/blake2b_nif.so: c_src/blake2b.c
+	$(CC) $(CFLAGS) -shared $(LDFLAGS) -o $@ c_src/blake2b.c
+
+priv/blake2s_nif.so: c_src/blake2s.c
+	$(CC) $(CFLAGS) -shared $(LDFLAGS) -o $@ c_src/blake2s.c
+
+.PHONY: all create_priv

@@ -19,6 +19,7 @@ https://blake2.net.
 
 #include "blake2.h"
 #include "blake2-impl.h"
+#include "erl_nif.h"
 
 static const uint32_t blake2s_IV[8] =
 {
@@ -335,31 +336,47 @@ int blake2s_final( blake2s_state *S, uint8_t *out, uint8_t outlen )
 	return 0;
 }
 
-int blake2s( uint8_t *out, const void *in, const void *key, const uint8_t outlen, const uint64_t inlen, uint8_t keylen )
+ERL_NIF_TERM blake2s_hash(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
 	blake2s_state S[1];
+	ErlNifBinary input, key;
+	uint8_t out[64] = {0};
+	unsigned int outlen;
+	int i;
+	ERL_NIF_TERM hash[64];
 
-	/* Verify parameters */
-	if ( NULL == in && inlen > 0 ) return -1;
+	if (argc != 3 || !enif_inspect_binary(env, argv[0], &input) ||
+			!enif_inspect_binary(env, argv[1], &key) ||
+			!enif_get_uint(env, argv[2], &outlen))
+		return enif_make_badarg(env);
 
-	if ( NULL == out ) return -1;
+	if (!outlen || outlen > BLAKE2B_OUTBYTES) return -1;
+	if (key.size > BLAKE2B_KEYBYTES) return -1;
 
-	if ( NULL == key && keylen > 0) return -1;
-
-	if( !outlen || outlen > BLAKE2S_OUTBYTES ) return -1;
-
-	if( keylen > BLAKE2S_KEYBYTES ) return -1;
-
-	if( keylen > 0 )
-	{
-		if( blake2s_init_key( S, outlen, key, keylen ) < 0 ) return -1;
+	if (key.size > 0) {
+		if (blake2s_init_key(S, outlen, key.data, key.size) < 0) return -1;
+	} else {
+		if (blake2s_init(S, outlen) < 0) return -1;
 	}
-	else
-	{
-		if( blake2s_init( S, outlen ) < 0 ) return -1;
+
+	blake2s_update(S, (const uint8_t *) input.data, (uint64_t) input.size);
+	blake2s_final(S, out, outlen);
+
+	for (i = 0; i < outlen; i++) {
+		hash[i] = enif_make_uint(env, out[i]);
 	}
 
-	blake2s_update( S, ( const uint8_t * )in, inlen );
-	blake2s_final( S, out, outlen );
+	return enif_make_list_from_array(env, hash, outlen);
+}
+
+static int upgrade(ErlNifEnv* env, void** priv_data, void** old_priv_data, ERL_NIF_TERM load_info)
+{
 	return 0;
 }
+
+static ErlNifFunc blake2_nif_funcs[] =
+{
+	{"blake2s_hash", 3, blake2s_hash}
+};
+
+ERL_NIF_INIT(Elixir.Blake2.Blake2s, blake2_nif_funcs, NULL, NULL, upgrade, NULL)
