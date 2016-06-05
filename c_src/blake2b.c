@@ -166,9 +166,8 @@ int blake2b_init_param( blake2b_state *S, const blake2b_param *P )
 	return 0;
 }
 
-
-
-int blake2b_init( blake2b_state *S, const uint8_t outlen )
+int blake2b_init( blake2b_state *S, const uint8_t outlen, const void *salt, const void *personal,
+		const uint8_t saltlen, const uint8_t personallen)
 {
 	blake2b_param P[1];
 
@@ -183,13 +182,22 @@ int blake2b_init( blake2b_state *S, const uint8_t outlen )
 	P->node_depth    = 0;
 	P->inner_length  = 0;
 	memset( P->reserved, 0, sizeof( P->reserved ) );
-	memset( P->salt,     0, sizeof( P->salt ) );
-	memset( P->personal, 0, sizeof( P->personal ) );
+	if (saltlen) {
+		blake2b_param_set_salt(P, (const uint8_t *) salt);
+	} else {
+		memset(P->salt, 0, sizeof( P->salt ));
+	}
+	if (personallen) {
+		blake2b_param_set_personal(P, (const uint8_t *) personal);
+	} else {
+		memset(P->personal, 0, sizeof(P->personal));
+	}
 	return blake2b_init_param( S, P );
 }
 
 
-int blake2b_init_key( blake2b_state *S, const uint8_t outlen, const void *key, const uint8_t keylen )
+int blake2b_init_key( blake2b_state *S, const uint8_t outlen, const void *key, const uint8_t keylen,
+		const void *salt, const void *personal, const uint8_t saltlen, const uint8_t personallen)
 {
 	blake2b_param P[1];
 
@@ -206,8 +214,16 @@ int blake2b_init_key( blake2b_state *S, const uint8_t outlen, const void *key, c
 	P->node_depth    = 0;
 	P->inner_length  = 0;
 	memset( P->reserved, 0, sizeof( P->reserved ) );
-	memset( P->salt,     0, sizeof( P->salt ) );
-	memset( P->personal, 0, sizeof( P->personal ) );
+	if (saltlen) {
+		blake2b_param_set_salt(P, (const uint8_t *) salt);
+	} else {
+		memset(P->salt, 0, sizeof( P->salt ));
+	}
+	if (personallen) {
+		blake2b_param_set_personal(P, (const uint8_t *) personal);
+	} else {
+		memset(P->personal, 0, sizeof(P->personal));
+	}
 
 	if( blake2b_init_param( S, P ) < 0 ) return -1;
 
@@ -315,7 +331,6 @@ int blake2b_update( blake2b_state *S, const uint8_t *in, uint64_t inlen )
 	return 0;
 }
 
-/* Is this correct? */
 int blake2b_final( blake2b_state *S, uint8_t *out, uint8_t outlen )
 {
 	uint8_t buffer[BLAKE2B_OUTBYTES] = {0};
@@ -349,24 +364,28 @@ int blake2b_final( blake2b_state *S, uint8_t *out, uint8_t outlen )
 ERL_NIF_TERM blake2b_hash(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
 	blake2b_state S[1];
-	ErlNifBinary input, key;
+	ErlNifBinary input, key, salt, personal;
 	uint8_t out[64] = {0};
 	unsigned int outlen;
 	int i;
 	ERL_NIF_TERM hash[64];
 
-	if (argc != 3 || !enif_inspect_binary(env, argv[0], &input) ||
+	if (argc != 5 || !enif_inspect_binary(env, argv[0], &input) ||
 			!enif_inspect_binary(env, argv[1], &key) ||
-			!enif_get_uint(env, argv[2], &outlen))
+			!enif_get_uint(env, argv[2], &outlen) ||
+			!enif_inspect_binary(env, argv[3], &salt) ||
+			!enif_inspect_binary(env, argv[4], &personal))
 		return enif_make_badarg(env);
 
 	if (!outlen || outlen > BLAKE2B_OUTBYTES) return -1;
 	if (key.size > BLAKE2B_KEYBYTES) return -1;
 
 	if (key.size > 0) {
-		if (blake2b_init_key(S, outlen, key.data, key.size) < 0) return -1;
+		if (blake2b_init_key(S, outlen, key.data, key.size,
+					salt.data, personal.data, salt.size, personal.size) < 0) return -1;
 	} else {
-		if (blake2b_init(S, outlen) < 0) return -1;
+		if (blake2b_init(S, outlen, salt.data, personal.data,
+					salt.size, personal.size) < 0) return -1;
 	}
 
 	blake2b_update(S, (const uint8_t *) input.data, (uint64_t) input.size);
@@ -386,7 +405,7 @@ static int upgrade(ErlNifEnv* env, void** priv_data, void** old_priv_data, ERL_N
 
 static ErlNifFunc blake2_nif_funcs[] =
 {
-	{"blake2b_hash", 3, blake2b_hash}
+	{"blake2b_hash", 5, blake2b_hash}
 };
 
 ERL_NIF_INIT(Elixir.Blake2.Blake2b, blake2_nif_funcs, NULL, NULL, upgrade, NULL)

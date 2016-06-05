@@ -11,11 +11,11 @@ defmodule Blake2.Blake2s do
     :erlang.load_nif(path, 0)
   end
 
-  def blake2s_hash(input, key, outlen)
-  def blake2s_hash(_, _, _), do: exit(:nif_library_not_loaded)
+  def blake2s_hash(input, key, outlen, salt, personal)
+  def blake2s_hash(_, _, _, _, _), do: exit(:nif_library_not_loaded)
 
-  def hash(input, key, outlen \\ 32) do
-    blake2s_hash(input, key, outlen)
+  def hash(input, key, outlen \\ 32, salt \\ "", personal \\ "") do
+    blake2s_hash(input, key, outlen, salt, personal)
     |> :binary.list_to_bin
     |> Base.encode16(case: :lower)
   end

@@ -5,8 +5,10 @@ defmodule Blake2Test do
   alias Blake2.Blake2s
 
   setup_all do
-    context = %{blake2b: get_data("blake2b.csv"), blake2b_keyed: get_data("blake2b_keyed.csv"),
-     blake2s: get_data("blake2s.csv"), blake2s_keyed: get_data("blake2s_keyed.csv")}
+    context = %{blake2b: get_data("blake2b.csv"),
+     blake2b_keyed: get_data("blake2b_keyed.csv"),
+     blake2s: get_data("blake2s.csv"),
+     blake2s_keyed: get_data("blake2s_keyed.csv")}
     {:ok, context}
   end
 
