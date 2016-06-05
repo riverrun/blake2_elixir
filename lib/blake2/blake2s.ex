@@ -1,4 +1,7 @@
 defmodule Blake2.Blake2s do
+  @moduledoc """
+  Blake2s is the version of Blake2 that is optimized for 8- to 32-bit platforms.
+  """
 
   @compile {:autoload, false}
   @on_load {:init, 0}
@@ -15,14 +18,6 @@ defmodule Blake2.Blake2s do
     blake2s_hash(input, key, outlen)
     |> :binary.list_to_bin
     |> Base.encode16(case: :lower)
-  end
-
-  def run_tests do
-    a = "" |> Base.decode16! |> hash("")
-    b = "00" |> Base.decode16! |> hash("")
-    c = "0001" |> Base.decode16! |> hash("")
-    d = "000102" |> Base.decode16! |> hash("")
-    {a, b, c, d}
   end
 
 end

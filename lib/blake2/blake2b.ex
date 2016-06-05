@@ -1,4 +1,7 @@
 defmodule Blake2.Blake2b do
+  @moduledoc """
+  Blake2b is the version of Blake2 that is optimized for 64-bit platforms.
+  """
 
   @compile {:autoload, false}
   @on_load {:init, 0}
@@ -15,14 +18,6 @@ defmodule Blake2.Blake2b do
     blake2b_hash(input, key, outlen)
     |> :binary.list_to_bin
     |> Base.encode16(case: :lower)
-  end
-
-  def run_tests do
-    a = "" |> Base.decode16! |> hash("")
-    b = "00" |> Base.decode16! |> hash("")
-    c = "0001" |> Base.decode16! |> hash("")
-    d = "000102" |> Base.decode16! |> hash("")
-    {a, b, c, d}
   end
 
 end
