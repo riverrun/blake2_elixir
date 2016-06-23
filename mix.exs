@@ -1,15 +1,24 @@
 defmodule Blake2.Mixfile do
   use Mix.Project
 
+  @version "0.2.0"
+
+  @description """
+  Blake2 cryptographic hashing function for Elixir
+  """
+
   def project do
-    [app: :blake2,
-     version: "0.1.0",
+    [app: :blake2_elixir,
+     version: @version,
      elixir: "~> 1.2",
-     name: "Blake2-elixir",
+     name: "Blake2_elixir",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      compilers: [:elixir_make] ++ Mix.compilers,
-     deps: deps]
+     description: @description,
+     package: package(),
+     source_url: "https://github.com/riverrun/blake2_elixir",
+     deps: deps()]
   end
 
   def application do
@@ -17,7 +26,15 @@ defmodule Blake2.Mixfile do
   end
 
   defp deps do
-    [{:elixir_make, git: "https://github.com/elixir-lang/elixir_make.git"}]
-    #[{:elixir_make, "~> 0.1.0"}]
+    [{:elixir_make, "~> 0.2.0"}]
+    #[{:elixir_make, git: "https://github.com/riverrun/elixir_make.git"}]
+  end
+
+  defp package do
+    [files: ["lib", "c_src", "mix.exs", "Makefile*", "README.md", "LICENSE"],
+     maintainers: ["David Whitlock"],
+     licenses: ["BSD"],
+     links: %{"GitHub" => "https://github.com/riverrun/blake2_elixir",
+      "Docs" => "http://hexdocs.pm/blake2_elixir"}]
   end
 end

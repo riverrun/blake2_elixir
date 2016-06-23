@@ -7,7 +7,7 @@ defmodule Blake2.Blake2s do
   @on_load {:init, 0}
 
   def init do
-    path = :filename.join(:code.priv_dir(:blake2), 'blake2s_nif')
+    path = :filename.join(:code.priv_dir(:blake2_elixir), 'blake2s_nif')
     :erlang.load_nif(path, 0)
   end
 
