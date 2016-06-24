@@ -395,9 +395,9 @@ static int upgrade(ErlNifEnv* env, void** priv_data, void** old_priv_data, ERL_N
 	return 0;
 }
 
-static ErlNifFunc blake2_nif_funcs[] =
+static ErlNifFunc blake2s_nif_funcs[] =
 {
 	{"blake2s_hash", 5, blake2s_hash}
 };
 
-ERL_NIF_INIT(Elixir.Blake2.Blake2s, blake2_nif_funcs, NULL, NULL, upgrade, NULL)
+ERL_NIF_INIT(Elixir.Blake2.Blake2s, blake2s_nif_funcs, NULL, NULL, upgrade, NULL)
