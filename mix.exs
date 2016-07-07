@@ -26,8 +26,8 @@ defmodule Blake2.Mixfile do
   end
 
   defp deps do
-    [{:elixir_make, "~> 0.2.0"}]
-    #[{:elixir_make, git: "https://github.com/riverrun/elixir_make.git"}]
+    #[{:elixir_make, "~> 0.2.0"}]
+    [{:elixir_make, git: "https://github.com/riverrun/elixir_make.git"}]
   end
 
   defp package do
