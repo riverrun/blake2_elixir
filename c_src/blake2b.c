@@ -365,10 +365,10 @@ ERL_NIF_TERM blake2b_hash(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
 {
 	blake2b_state S[1];
 	ErlNifBinary input, key, salt, personal;
-	uint8_t out[64] = {0};
+	uint8_t out[BLAKE2B_OUTBYTES] = {0};
 	unsigned int outlen;
 	int i;
-	ERL_NIF_TERM hash[64];
+	ERL_NIF_TERM hash[BLAKE2B_OUTBYTES];
 
 	if (argc != 5 || !enif_inspect_binary(env, argv[0], &input) ||
 			!enif_inspect_binary(env, argv[1], &key) ||
