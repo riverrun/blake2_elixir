@@ -26,11 +26,11 @@ defmodule Blake2 do
   CURRENTLY SUPPORTED
 
   Blake2b and Blake2s standard and keyed hashing, salted and personalized hashing
+  Parallel versions: Blask2bp, Blake2sp
 
   CURRENTLY NOT SUPPORTED
 
   Tree-hashing
-  Parallel versions: Blask2bp, Blake2sp
   b2sum
 
   """

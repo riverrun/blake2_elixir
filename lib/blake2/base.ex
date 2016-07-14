@@ -1,5 +1,7 @@
 vars = [{Blake2.Blake2b, 'blake2b_nif', :blake2b_hash, 64},
- {Blake2.Blake2s, 'blake2s_nif', :blake2s_hash, 32}]
+ {Blake2.Blake2s, 'blake2s_nif', :blake2s_hash, 32},
+ {Blake2.Blake2bp, 'blake2bp_nif', :blake2bp_hash, 64},
+ {Blake2.Blake2sp, 'blake2sp_nif', :blake2sp_hash, 32}]
 
 for {mod, nif_file, hash_func, outlength} <- vars do
   defmodule mod do

@@ -17,4 +17,4 @@ Blake2 comes in two flavors:
 ## Status
 
 Blake2b and Blake2s are now supported (tree-hashing is not supported yet).
-The parallel versions are not supported yet.
+The parallel versions are also now supported.
