@@ -18,7 +18,7 @@ defmodule Blake2.Blake2b do
     blake2b_hash(input, key, outlen, salt, personal) |> handle_result
   end
 
-  defp handle_result(-1), do: raise ArgumentError, "Something went wrong!"
+  defp handle_result(-1), do: raise ArgumentError, "Input error"
   defp handle_result(hash_output) do
     :binary.list_to_bin(hash_output) |> Base.encode16(case: :lower)
   end
