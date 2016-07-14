@@ -25,18 +25,28 @@ defmodule Blake2 do
 
   CURRENTLY SUPPORTED
 
-  Blake2b and Blake2s standard and keyed hashing - tests pass
+  Blake2b and Blake2s standard and keyed hashing, salted and personalized hashing
 
   CURRENTLY NOT SUPPORTED
 
-  Salted hashing
-  Personalized hashing
   Tree-hashing
   Parallel versions: Blask2bp, Blake2sp
   b2sum
 
   """
 
+  alias Blake2.{Blake2b, Blake2s}
 
+  def blake2b(input, key, outlen \\ 64, salt \\ "", personal \\ "") do
+    Blake2b.blake2b_hash(input, key, outlen, salt, personal) |> handle_result
+  end
 
+  def blake2s(input, key, outlen \\ 32, salt \\ "", personal \\ "") do
+    Blake2s.blake2s_hash(input, key, outlen, salt, personal) |> handle_result
+  end
+
+  defp handle_result(-1), do: raise ArgumentError, "Input error"
+  defp handle_result(hash_output) do
+    :binary.list_to_bin(hash_output) |> Base.encode16(case: :lower)
+  end
 end
