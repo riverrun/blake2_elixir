@@ -35,26 +35,4 @@ defmodule Blake2 do
 
   """
 
-  alias Blake2.{Blake2b, Blake2s}
-
-  @doc """
-  Blake2b is optimized for 64-bit platforms and
-  produces digests of any size between 1 and 64 bytes
-  """
-  def blake2b(input, key, outlen \\ 64, salt \\ "", personal \\ "") do
-    Blake2b.blake2b_hash(input, key, outlen, salt, personal) |> handle_result
-  end
-
-  @doc """
-  Blake2s is optimized for 8- to 32-bit platforms and
-  produces digests of any size between 1 and 32 bytes
-  """
-  def blake2s(input, key, outlen \\ 32, salt \\ "", personal \\ "") do
-    Blake2s.blake2s_hash(input, key, outlen, salt, personal) |> handle_result
-  end
-
-  defp handle_result(-1), do: raise ArgumentError, "Input error"
-  defp handle_result(hash_output) do
-    :binary.list_to_bin(hash_output) |> Base.encode16(case: :lower)
-  end
 end
