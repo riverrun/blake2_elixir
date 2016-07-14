@@ -1,7 +1,7 @@
 defmodule Blake2.Mixfile do
   use Mix.Project
 
-  @version "0.2.0"
+  @version "0.8.0"
 
   @description """
   Blake2 cryptographic hashing function for Elixir
@@ -26,8 +26,8 @@ defmodule Blake2.Mixfile do
   end
 
   defp deps do
-    #[{:elixir_make, "~> 0.2.0"}]
-    [{:elixir_make, git: "https://github.com/riverrun/elixir_make.git"}]
+    [{:elixir_make, "~> 0.3"}]
+    #[{:elixir_make, git: "https://github.com/riverrun/elixir_make.git"}]
   end
 
   defp package do

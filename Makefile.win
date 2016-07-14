@@ -11,6 +11,8 @@ CFLAGS = /O2 /EHsc /I"$(BLAKE2_PATH)"
 
 BLAKE2B_SRC = c_src/blake2b.c c_src/blake2b_nif.c
 BLAKE2S_SRC = c_src/blake2s.c c_src/blake2s_nif.c
+BLAKE2BP_SRC = c_src/blake2bp.c c_src/blake2b.c
+BLAKE2SP_SRC = c_src/blake2sp.c c_src/blake2s.c
 
 Makefile.auto.win:
 	echo # Auto-generated as part of Makefile.win, do not modify. > $@
@@ -28,6 +30,12 @@ priv\blake2b_nif.dll: $(BLAKE2B_SRC)
 
 priv\blake2s_nif.dll: $(BLAKE2S_SRC)
 	$(CC) $(CFLAGS) /I"$(ERTS_INCLUDE_PATH)" /LD /MD /Fe$@ $(BLAKE2S_SRC)
+
+priv\blake2bp_nif.dll: $(BLAKE2BP_SRC)
+	$(CC) $(CFLAGS) /I"$(ERTS_INCLUDE_PATH)" /LD /MD /Fe$@ $(BLAKE2BP_SRC)
+
+priv\blake2sp_nif.dll: $(BLAKE2SP_SRC)
+	$(CC) $(CFLAGS) /I"$(ERTS_INCLUDE_PATH)" /LD /MD /Fe$@ $(BLAKE2SP_SRC)
 !ELSE
 priv\blake2_nif.dll: Makefile.auto.win
 	$(NMAKE) /F Makefile.win priv\blake2_nif.dll
