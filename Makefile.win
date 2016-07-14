@@ -9,6 +9,9 @@ BLAKE2_PATH = c_src
 NMAKE = nmake /$(MAKEFLAGS)
 CFLAGS = /O2 /EHsc /I"$(BLAKE2_PATH)"
 
+BLAKE2B_SRC = c_src/blake2b.c c_src/blake2b_nif.c
+BLAKE2S_SRC = c_src/blake2s.c c_src/blake2s_nif.c
+
 Makefile.auto.win:
 	echo # Auto-generated as part of Makefile.win, do not modify. > $@
 	erl -eval "io:format(\"~s~n\", [lists:concat([\"ERTS_INCLUDE_PATH=\", code:root_dir(), \"/erts-\", erlang:system_info(version), \"/include\"])])" -s init stop -noshell >> $@
@@ -20,11 +23,11 @@ all: create_priv priv\blake2b_nif.dll priv\blake2s_nif.dll
 create_priv:
 	if NOT EXIST "priv" mkdir "priv"
 
-priv\blake2b_nif.dll: c_src/blake2b.c
-	$(CC) $(CFLAGS) /I"$(ERTS_INCLUDE_PATH)" /LD /MD /Fe$@ c_src/blake2b.c
+priv\blake2b_nif.dll: $(BLAKE2B_SRC)
+	$(CC) $(CFLAGS) /I"$(ERTS_INCLUDE_PATH)" /LD /MD /Fe$@ $(BLAKE2B_SRC)
 
-priv\blake2s_nif.dll: c_src/blake2s.c
-	$(CC) $(CFLAGS) /I"$(ERTS_INCLUDE_PATH)" /LD /MD /Fe$@ c_src/blake2s.c
+priv\blake2s_nif.dll: $(BLAKE2S_SRC)
+	$(CC) $(CFLAGS) /I"$(ERTS_INCLUDE_PATH)" /LD /MD /Fe$@ $(BLAKE2S_SRC)
 !ELSE
 priv\blake2_nif.dll: Makefile.auto.win
 	$(NMAKE) /F Makefile.win priv\blake2_nif.dll

@@ -3,6 +3,7 @@ CFLAGS = -g -O3 -Wall
 ERLANG_PATH = $(shell erl -eval 'io:format("~s", [lists:concat([code:root_dir(), "/erts-", erlang:system_info(version), "/include"])])' -s init stop -noshell)
 CFLAGS += -I$(ERLANG_PATH)
 CFLAGS += -Ic_src
+
 ifneq ($(CROSSCOMPILE),)
     # crosscompiling
     CFLAGS += -fPIC
@@ -17,15 +18,18 @@ else
     endif
 endif
 
+BLAKE2B_SRC = c_src/blake2b.c c_src/blake2b_nif.c
+BLAKE2S_SRC = c_src/blake2s.c c_src/blake2s_nif.c
+
 all: create_priv priv/blake2b_nif.so priv/blake2s_nif.so
 
 create_priv:
 	mkdir -p priv
 
-priv/blake2b_nif.so: c_src/blake2b.c
-	$(CC) $(CFLAGS) -shared $(LDFLAGS) -o $@ c_src/blake2b.c
+priv/blake2b_nif.so: $(BLAKE2B_SRC)
+	$(CC) $(CFLAGS) -shared $(LDFLAGS) -o $@ $(BLAKE2B_SRC)
 
-priv/blake2s_nif.so: c_src/blake2s.c
-	$(CC) $(CFLAGS) -shared $(LDFLAGS) -o $@ c_src/blake2s.c
+priv/blake2s_nif.so: $(BLAKE2S_SRC)
+	$(CC) $(CFLAGS) -shared $(LDFLAGS) -o $@ $(BLAKE2S_SRC)
 
 .PHONY: all create_priv
