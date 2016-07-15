@@ -39,16 +39,14 @@ static inline int blake2sp_init_leaf( blake2s_state *S, uint8_t outlen, uint8_t 
 	store48( P->node_offset, offset );
 	P->node_depth = 0;
 	P->inner_length = BLAKE2S_OUTBYTES;
-	if (saltlen) {
+	if (saltlen)
 		memcpy( P->salt, salt, BLAKE2S_SALTBYTES );
-	} else {
+	else
 		memset(P->salt, 0, sizeof( P->salt ));
-	}
-	if (personallen) {
+	if (personallen)
 		memcpy( P->personal, personal, BLAKE2S_PERSONALBYTES );
-	} else {
+	else
 		memset(P->personal, 0, sizeof(P->personal));
-	}
 	return blake2s_init_param( S, P );
 }
 
@@ -64,16 +62,14 @@ static inline int blake2sp_init_root( blake2s_state *S, uint8_t outlen, uint8_t 
 	store48( P->node_offset, 0ULL );
 	P->node_depth = 1;
 	P->inner_length = BLAKE2S_OUTBYTES;
-	if (saltlen) {
+	if (saltlen)
 		memcpy( P->salt, salt, BLAKE2S_SALTBYTES );
-	} else {
+	else
 		memset(P->salt, 0, sizeof( P->salt ));
-	}
-	if (personallen) {
+	if (personallen)
 		memcpy( P->personal, personal, BLAKE2S_PERSONALBYTES );
-	} else {
+	else
 		memset(P->personal, 0, sizeof(P->personal));
-	}
 	return blake2s_init_param( S, P );
 }
 

@@ -15,7 +15,7 @@ defmodule Blake2 do
 
   ## Options
 
-    * keyed hashing - (MAC or PRF)
+    * keyed hashing
     * salted hashing
     * personalized hashing
     * tree-hashing (updatable)
