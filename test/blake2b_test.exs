@@ -12,13 +12,13 @@ defmodule Blake2bTest do
 
   test "blake2b test vectors", %{blake2b: blake2b} do
     Enum.map blake2b, fn [_, input, _, output] ->
-      assert Blake2b.hash(Base.decode16!(input, case: :lower), "") == output
+      assert Blake2b.hash_hex(Base.decode16!(input, case: :lower), "") == output
     end
   end
 
   test "blake2b keyed hash test vectors", %{blake2b_keyed: blake2b_keyed} do
     Enum.map blake2b_keyed, fn [_, input, key, output] ->
-      assert Blake2b.hash(Base.decode16!(input, case: :lower),
+      assert Blake2b.hash_hex(Base.decode16!(input, case: :lower),
        Base.decode16!(key, case: :lower)) == output
     end
   end

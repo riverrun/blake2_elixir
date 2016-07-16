@@ -13,25 +13,23 @@ defmodule Blake2 do
   There are also the 4-way parallel Blask2bp and 8-way parallel Blake2sp
   versions.
 
+  ## Use
+
+  Import the appropriate module for the platform you are using. Then
+  run the `hash/2` function to output the hash in bytes, or run the
+  `hash_hex/2` function for hexadecimal output.
+
   ## Options
 
     * keyed hashing
     * salted hashing
     * personalized hashing
-    * tree-hashing (updatable)
+    * tree-hashing (updatable) - currently not supported.
 
   ## b2sum
 
+  Currently not supported.
 
-  CURRENTLY SUPPORTED
-
-  Blake2b and Blake2s standard and keyed hashing, salted and personalized hashing
-  Parallel versions: Blask2bp, Blake2sp
-
-  CURRENTLY NOT SUPPORTED
-
-  Tree-hashing
-  b2sum
 
   """
 
