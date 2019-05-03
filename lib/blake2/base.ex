@@ -1,11 +1,14 @@
-vars = [{Blake2.Blake2b, 'blake2b_nif', 64},
- {Blake2.Blake2s, 'blake2s_nif', 32},
- {Blake2.Blake2bp, 'blake2bp_nif', 64},
- {Blake2.Blake2sp, 'blake2sp_nif', 32}]
+vars = [
+  {Blake2.Blake2b, 'blake2b_nif', 64},
+  {Blake2.Blake2s, 'blake2s_nif', 32},
+  {Blake2.Blake2bp, 'blake2bp_nif', 64},
+  {Blake2.Blake2sp, 'blake2sp_nif', 32}
+]
 
 for {mod, nif_file, max_out} <- vars do
-  version = to_string(mod) |> String.split(".") |> List.last
+  version = to_string(mod) |> String.split(".") |> List.last()
   platform = if max_out == 64, do: "64-bit", else: "8- to 32-bit"
+
   defmodule mod do
     @moduledoc """
     Module to hash input using the #{version} version of Blake2.
@@ -49,7 +52,8 @@ for {mod, nif_file, max_out} <- vars do
       |> Base.encode16(case: :lower)
     end
 
-    defp handle_result(-1), do: raise ArgumentError, "Input error"
+    defp handle_result(-1), do: raise(ArgumentError, "Input error")
+
     defp handle_result(hash_output) do
       :binary.list_to_bin(hash_output)
     end
