@@ -33,7 +33,7 @@ for {mod, nif_file, max_out} <- vars do
     end
 
     def hash_nif(input, key, outlen, salt, personal)
-    def hash_nif(_, _, _, _, _), do: exit(:nif_library_not_loaded)
+    def hash_nif(_, _, _, _, _), do: :erlang.nif_error(:not_loaded)
 
     @doc """
     Main hash function - output in bytes.
