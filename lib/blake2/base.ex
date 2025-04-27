@@ -1,8 +1,8 @@
 vars = [
-  {Blake2.Blake2b, 'blake2b_nif', 64},
-  {Blake2.Blake2s, 'blake2s_nif', 32},
-  {Blake2.Blake2bp, 'blake2bp_nif', 64},
-  {Blake2.Blake2sp, 'blake2sp_nif', 32}
+  {Blake2.Blake2b, ~c"blake2b_nif", 64},
+  {Blake2.Blake2s, ~c"blake2s_nif", 32},
+  {Blake2.Blake2bp, ~c"blake2bp_nif", 64},
+  {Blake2.Blake2sp, ~c"blake2sp_nif", 32}
 ]
 
 for {mod, nif_file, max_out} <- vars do

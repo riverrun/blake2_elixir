@@ -1,7 +1,7 @@
 defmodule Blake2.Mixfile do
   use Mix.Project
 
-  @version "0.8.1"
+  @version "0.9.0"
 
   @description """
   Blake2 cryptographic hashing function for Elixir
